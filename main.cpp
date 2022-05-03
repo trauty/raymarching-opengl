@@ -2,6 +2,7 @@
 #include <glad.h>
 #include <glfw3.h>
 #include "shader.h"
+#include "time.h"
 
 int screenWidth = 1280;
 int screenHeight = 720;
@@ -54,6 +55,8 @@ int main()
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
         glfwSwapBuffers(window);
+
+        Time::calculateDeltaTime();
 
         glfwPollEvents();
     }
