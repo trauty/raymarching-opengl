@@ -3,6 +3,7 @@
 #define MAX_STEPS 100
 #define MAX_DIST 100.
 #define SURF_DIST 0.01
+#define PI 3.14159265359
 
 out vec4 FragColor;
 
@@ -11,9 +12,9 @@ in vec2 fragCoord;
 uniform vec2 iResolution;
 uniform float iTime;
 uniform float iDeltaTime;
-uniform vec2 iKeyboard;
-
-vec3 ro = vec3(0, 1, -5.0);
+uniform float scale;
+uniform int iterations;
+uniform vec2 iMouse;
 
 mat2 rotate(float a) {
     float s = sin(a);
@@ -28,18 +29,18 @@ float torus(vec3 p, vec2 r)
     return length(vec2(x, p.y)) - r.y;
 }
 
-float sierpinskiTriangle(vec3 z, float scale)
+float sierpinskiTetrahedron(vec3 z)
 {
     float r;
     int n = 0;
-    while (n < 50) {
-       if(z.x+z.y<0) z.xy = -z.yx; // fold 1
-       if(z.x+z.z<0) z.xz = -z.zx; // fold 2
-       if(z.y+z.z<0) z.zy = -z.yz; // fold 3	
-       z = z*scale - 2.0*(scale-1.0);
+    while (n < iterations) {
+       if(z.x + z.y < 0) z.xy = -z.yx; // fold 1
+       if(z.x + z.z < 0) z.xz = -z.zx; // fold 2
+       if(z.y + z.z < 0) z.zy = -z.yz; // fold 3	
+       z = z * scale - 2.0 * (scale - 1.0);
        n++;
     }
-    return (length(z) ) * pow(scale, -float(n));
+    return (length(z)) * pow(scale, -float(n));
 }
 
 
@@ -47,14 +48,24 @@ float getDist(vec3 p)
 {
     vec4 s = vec4(0, 1, 6, 1);
     float sphereDist = length(p - s.xyz) - s.w;
-    float planeDist = p.y;
+    //float planeDist = p.y;
     
-    float td = sierpinskiTriangle(p, 2);
-    float dist = min(sphereDist, planeDist);
-    dist = min(dist, td);
+    float td = sierpinskiTetrahedron(p);
+    float dist = td;
+    //dist = min(dist, td);
     return dist;
 }
 
+
+vec3 R(vec2 uv, vec3 p, vec3 l, float z) {
+    vec3 f = normalize(l-p),
+        r = normalize(cross(vec3(0,1,0), f)),
+        u = cross(f,r),
+        c = p+f*z,
+        i = c + uv.x*r + uv.y*u,
+        d = normalize(i-p);
+    return d;
+}
 
 
 float rayMarch(vec3 ro, vec3 rd)
@@ -107,12 +118,19 @@ void main()
 {
 	vec2 uv = fragCoord;
 
-    vec3 col = vec3(0);
-   
-    vec3 rd = normalize(vec3(uv.x, uv.y, 1));
+    vec2 m = iMouse.xy / iResolution.xy;
 
-    ro += vec3(iKeyboard.x * 0.1, 0, iKeyboard.y * 0.1);
+
+    vec3 col = vec3(0);
+  
     
+    vec3 ro = vec3(0, 0, -5.0);
+
+    ro.yz *= rotate(-m.y + 0.4);
+    ro.xz *= rotate(0.2 - m.x * PI);
+
+    vec3 rd = R(uv, ro, vec3(0, 0, 0), 1.2);
+  
     float dist = rayMarch(ro, rd);
     
     vec3 p = ro + rd * dist;
