@@ -10,6 +10,10 @@ in vec2 fragCoord;
 
 uniform vec2 iResolution;
 uniform float iTime;
+uniform float iDeltaTime;
+uniform vec2 iKeyboard;
+
+vec3 ro = vec3(0, 1, -5.0);
 
 mat2 rotate(float a) {
     float s = sin(a);
@@ -104,9 +108,10 @@ void main()
 	vec2 uv = fragCoord;
 
     vec3 col = vec3(0);
-    
-    vec3 ro = vec3(-1, 1, -5);
+   
     vec3 rd = normalize(vec3(uv.x, uv.y, 1));
+
+    ro += vec3(iKeyboard.x * 0.1, 0, iKeyboard.y * 0.1);
     
     float dist = rayMarch(ro, rd);
     
