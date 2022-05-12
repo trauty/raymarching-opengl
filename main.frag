@@ -40,14 +40,13 @@ float sierpinskiTetrahedron(vec3 z)
        z = z * scale - 2.0 * (scale - 1.0);
        n++;
     }
-    return (length(z)) * pow(scale, -float(n));
+    return (length(z)) * pow(scale, -float(n)) * 1;
 }
-
 
 float getDist(vec3 p)
 {
     vec4 s = vec4(0, 1, 6, 1);
-    float sphereDist = length(p - s.xyz) - s.w;
+    //float sphereDist = length(p - s.xyz) - s.w;
     //float planeDist = p.y;
     
     float td = sierpinskiTetrahedron(p);
@@ -118,7 +117,7 @@ void main()
 {
 	vec2 uv = fragCoord;
 
-    vec2 m = iMouse.xy / iResolution.xy;
+    vec2 m = iMouse.xy;
 
 
     vec3 col = vec3(0);

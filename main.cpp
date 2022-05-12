@@ -13,9 +13,11 @@ int screenHeight = 720;
 
 GLFWwindow* window;
 int keyX = 0, keyY = 0;
-double mouseX = 0.0, mouseY = 0.0;
 int iterations = 0;
 float scale = 0.0f;
+bool firstClick = true;
+double mouseX = 0.0;
+double mouseY = 0.0;
 
 void reactToFrameResize(GLFWwindow* window, int newWidth, int newHeight)
 {
@@ -47,7 +49,7 @@ int main()
 
     Shader mainShader("main.vert", "main.frag");
     mainShader.activate();
-    glUniform2f(glGetUniformLocation(mainShader.id, "iResolution"), screenWidth, screenHeight);
+    glUniform2f(glGetUniformLocation(mainShader.id, "iResolution"), (float)screenWidth, (float)screenHeight);
 
     GLuint fakeVAO;
     glGenVertexArrays(1, &fakeVAO);
@@ -68,15 +70,31 @@ int main()
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        glfwGetCursorPos(window, &mouseX, &mouseY);
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+        {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
+            if (firstClick)
+            {
+                glfwSetCursorPos(window, (screenWidth / 2), (screenHeight / 2));
+                firstClick = false;
+            }
+
+            glfwGetCursorPos(window, &mouseX, &mouseY);
+
+            mouseY = (float)(mouseY - (screenHeight / 2)) / screenHeight;
+            mouseX = (float)(mouseX - (screenWidth / 2)) / screenWidth;
+
+           // glfwSetCursorPos(window, (screenWidth / 2), (screenHeight / 2));
+        }
 
         mainShader.activate();
         glUniform1f(glGetUniformLocation(mainShader.id, "iTime"), (float)glfwGetTime());
         glUniform1f(glGetUniformLocation(mainShader.id, "iDeltaTime"), Time::deltaTime);
         glUniform1f(glGetUniformLocation(mainShader.id, "scale"), scale);
         glUniform1i(glGetUniformLocation(mainShader.id, "iterations"), iterations);
-        glUniform2f(glGetUniformLocation(mainShader.id, "iResolution"), screenWidth, screenHeight);
-        glUniform2f(glGetUniformLocation(mainShader.id, "iMouse"), mouseX, mouseY);
+        glUniform2f(glGetUniformLocation(mainShader.id, "iResolution"), (float)screenWidth, (float)screenHeight);
+        glUniform2f(glGetUniformLocation(mainShader.id, "iMouse"), (float)mouseX, (float)mouseY);
 
         glBindVertexArray(fakeVAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
