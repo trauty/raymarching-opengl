@@ -15,6 +15,7 @@ GLFWwindow* window;
 int keyX = 0, keyY = 0;
 int iterations = 0;
 float scale = 0.0f;
+float exponent = 0.0f;
 bool firstClick = true;
 double mouseX = 0.0;
 double mouseY = 0.0;
@@ -92,6 +93,7 @@ int main()
         glUniform1f(glGetUniformLocation(mainShader.id, "iTime"), (float)glfwGetTime());
         glUniform1f(glGetUniformLocation(mainShader.id, "iDeltaTime"), Time::deltaTime);
         glUniform1f(glGetUniformLocation(mainShader.id, "scale"), scale);
+        glUniform1f(glGetUniformLocation(mainShader.id, "exponent"), exponent);
         glUniform1i(glGetUniformLocation(mainShader.id, "iterations"), iterations);
         glUniform2f(glGetUniformLocation(mainShader.id, "iResolution"), (float)screenWidth, (float)screenHeight);
         glUniform2f(glGetUniformLocation(mainShader.id, "iMouse"), (float)mouseX, (float)mouseY);
@@ -102,7 +104,8 @@ int main()
         ImGui::SetNextWindowSize(ImVec2(350, 100));
         ImGui::Begin("Variablen");
         ImGui::SliderInt("Iterationen", &iterations, 1, 50);
-        ImGui::SliderFloat("Skalierung", &scale, 0.0f, 5.0f);
+        ImGui::SliderFloat("Skalierung", &scale, 0.0f, 20.0f);
+        ImGui::SliderFloat("Exponent", &exponent, 0.0f, 10.0f);
         ImGui::End();
 
         ImGui::Render();

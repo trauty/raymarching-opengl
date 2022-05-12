@@ -1,6 +1,6 @@
 #version 330 core
 
-#define MAX_STEPS 100
+#define MAX_STEPS 1000
 #define MAX_DIST 100.
 #define SURF_DIST 0.01
 #define PI 3.14159265359
@@ -13,8 +13,14 @@ uniform vec2 iResolution;
 uniform float iTime;
 uniform float iDeltaTime;
 uniform float scale;
+uniform float exponent;
 uniform int iterations;
 uniform vec2 iMouse;
+
+float foldingLimit = 0.5;
+float minRadius2 = 1.0;
+float fixedRadius2 = 1.0;
+float r = 2.0;
 
 mat2 rotate(float a) {
     float s = sin(a);
@@ -22,11 +28,73 @@ mat2 rotate(float a) {
     return mat2(c, -s, s, c);
 }
 
+void sphereFold(inout vec3 z, inout float dz) {
+	float r2 = dot(z,z);
+	if (r < minRadius2) { 
+		// linear inner scaling
+		float temp = (fixedRadius2 / minRadius2);
+		z *= temp;
+		dz*= temp;
+	} else if (r2 < fixedRadius2) { 
+		// this is the actual sphere inversion
+		float temp =(fixedRadius2 / r2);
+		z *= temp;
+		dz*= temp;
+	}
+}
+
+void boxFold(inout vec3 z, inout float dz) {
+	z = clamp(z, -foldingLimit, foldingLimit) * 2.0 - z;
+}
+
 
 float torus(vec3 p, vec2 r)
 {
     float x = length(p.xz) - r.x;
     return length(vec2(x, p.y)) - r.y;
+}
+
+float mandelBulb(vec3 pos) 
+{
+    float power = exponent;
+    power = clamp(abs(sin(iTime * 0.5) * 5), 1.1, 6.0);
+	vec3 z = pos;
+	float dr = 1.0;
+	float r = 0.0;
+	for (int i = 0; i < iterations ; i++) {
+		r = length(z);
+		if (r > 100) break;
+		
+		// convert to polar coordinates
+		float theta = acos(z.z / r);
+		float phi = atan(z.y, z.x);
+		dr =  pow(r, power - 1.0) * power * dr + 1.0;
+		
+		// scale and rotate the point
+		float zr = pow(r, power);
+		theta = theta * power;
+		phi = phi * power;
+		
+		// convert back to cartesian coordinates
+		z = zr*vec3(sin(theta)*cos(phi), sin(phi)*sin(theta), cos(theta));
+		z+=pos;
+	}
+	return 0.5 * log(r) * r / dr;
+}
+
+float mandelTest(vec3 z)
+{
+	vec3 offset = z;
+	float dr = 1.0;
+	for (int n = 0; n < iterations; n++) {
+		boxFold(z,dr);       // Reflect
+		sphereFold(z,dr);    // Sphere Inversion
+ 		
+                z=scale*z + offset;  // Scale & Translate
+                dr = dr*abs(scale)+1.0;
+	}
+	float r = length(z);
+	return r/abs(dr);
 }
 
 float sierpinskiTetrahedron(vec3 z)
@@ -49,7 +117,7 @@ float getDist(vec3 p)
     //float sphereDist = length(p - s.xyz) - s.w;
     //float planeDist = p.y;
     
-    float td = sierpinskiTetrahedron(p);
+    float td = mandelBulb(p);
     float dist = td;
     //dist = min(dist, td);
     return dist;
@@ -58,10 +126,10 @@ float getDist(vec3 p)
 
 vec3 R(vec2 uv, vec3 p, vec3 l, float z) {
     vec3 f = normalize(l-p),
-        r = normalize(cross(vec3(0,1,0), f)),
+        r = normalize(cross(vec3(0, 1, 0), f)),
         u = cross(f,r),
-        c = p+f*z,
-        i = c + uv.x*r + uv.y*u,
+        c = p + f * z,
+        i = c + uv.x * r + uv.y * u,
         d = normalize(i-p);
     return d;
 }
@@ -119,9 +187,7 @@ void main()
 
     vec2 m = iMouse.xy;
 
-
     vec3 col = vec3(0);
-  
     
     vec3 ro = vec3(0, 0, -5.0);
 
@@ -136,7 +202,6 @@ void main()
     
     float diffuse = getLight(p);
     col = vec3(diffuse);
-    
 
     FragColor = vec4(col, 1.0);
 }
