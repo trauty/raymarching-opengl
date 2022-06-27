@@ -17,14 +17,50 @@ int iterations = 0;
 float scale = 0.0f;
 float exponent = 0.0f;
 bool firstClick = true;
-double mouseX = 0.0;
-double mouseY = 0.0;
+float lookX = 0.0;
+float lookY = 0.0;
 
 void reactToFrameResize(GLFWwindow* window, int newWidth, int newHeight)
 {
     glViewport(0, 0, newWidth, newHeight);
     screenWidth = newWidth;
     screenHeight = newHeight;
+}
+
+void reactToInput()
+{
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    {
+        keyY += 1.0f;
+    }
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    {
+        keyY -= 1.0f;
+    }
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    {
+        keyX -= 1.0f;
+    }
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    {
+        keyX += 1.0f;
+    }
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+    {
+        lookY -= 0.01f;
+    }
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+    {
+        lookY += 0.01f;
+    }
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+    {
+        lookX += 0.01f;
+    }
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+    {
+        lookX -= 0.01f;
+    }
 }
 
 int main()
@@ -71,23 +107,7 @@ int main()
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
-        {
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-
-            if (firstClick)
-            {
-                glfwSetCursorPos(window, (screenWidth / 2), (screenHeight / 2));
-                firstClick = false;
-            }
-
-            glfwGetCursorPos(window, &mouseX, &mouseY);
-
-            mouseY = (float)(mouseY - (screenHeight / 2)) / screenHeight;
-            mouseX = (float)(mouseX - (screenWidth / 2)) / screenWidth;
-
-           // glfwSetCursorPos(window, (screenWidth / 2), (screenHeight / 2));
-        }
+        reactToInput();
 
         mainShader.activate();
         glUniform1f(glGetUniformLocation(mainShader.id, "iTime"), (float)glfwGetTime());
@@ -96,7 +116,8 @@ int main()
         glUniform1f(glGetUniformLocation(mainShader.id, "exponent"), exponent);
         glUniform1i(glGetUniformLocation(mainShader.id, "iterations"), iterations);
         glUniform2f(glGetUniformLocation(mainShader.id, "iResolution"), (float)screenWidth, (float)screenHeight);
-        glUniform2f(glGetUniformLocation(mainShader.id, "iMouse"), (float)mouseX, (float)mouseY);
+        glUniform2f(glGetUniformLocation(mainShader.id, "iLook"), lookX, lookY);
+        glUniform2f(glGetUniformLocation(mainShader.id, "iKey"), keyX, keyY);
 
         glBindVertexArray(fakeVAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);

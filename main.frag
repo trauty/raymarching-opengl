@@ -15,35 +15,76 @@ uniform float iDeltaTime;
 uniform float scale;
 uniform float exponent;
 uniform int iterations;
-uniform vec2 iMouse;
+uniform vec2 iLook;
+uniform vec2 iKey;
 
 float foldingLimit = 0.5;
 float minRadius2 = 1.0;
 float fixedRadius2 = 1.0;
 float r = 2.0;
 
-mat2 rotate(float a) {
-    float s = sin(a);
-    float c = cos(a);
-    return mat2(c, -s, s, c);
+mat3 rotateX(float theta) 
+{
+    float c = cos(theta);
+    float s = sin(theta);
+    return mat3(
+        vec3(1, 0, 0),
+        vec3(0, c, -s),
+        vec3(0, s, c)
+    );
 }
 
-void sphereFold(inout vec3 z, inout float dz) {
-	float r2 = dot(z,z);
-	if (r < minRadius2) { 
-		// linear inner scaling
+mat3 rotateY(float theta) 
+{
+    float c = cos(theta);
+    float s = sin(theta);
+    return mat3(
+        vec3(c, 0, s),
+        vec3(0, 1, 0),
+        vec3(-s, 0, c)
+    );
+}
+
+mat3 rotateZ(float theta) 
+{
+    float c = cos(theta);
+    float s = sin(theta);
+    return mat3(
+        vec3(c, -s, 0),
+        vec3(s, c, 0),
+        vec3(0, 0, 1)
+    );
+}
+
+// Identity matrix.
+mat3 identity() 
+{
+    return mat3(
+        vec3(1, 0, 0),
+        vec3(0, 1, 0),
+        vec3(0, 0, 1)
+    );
+}
+
+void sphereFold(inout vec3 z, inout float dz) 
+{
+	float r2 = dot(z, z);
+	if (r < minRadius2) 
+    { 
 		float temp = (fixedRadius2 / minRadius2);
 		z *= temp;
-		dz*= temp;
-	} else if (r2 < fixedRadius2) { 
-		// this is the actual sphere inversion
+		dz *= temp;
+	} 
+    else if (r2 < fixedRadius2) 
+    { 
 		float temp =(fixedRadius2 / r2);
 		z *= temp;
-		dz*= temp;
+		dz *= temp;
 	}
 }
 
-void boxFold(inout vec3 z, inout float dz) {
+void boxFold(inout vec3 z, inout float dz) 
+{
 	z = clamp(z, -foldingLimit, foldingLimit) * 2.0 - z;
 }
 
@@ -86,12 +127,13 @@ float mandelTest(vec3 z)
 {
 	vec3 offset = z;
 	float dr = 1.0;
-	for (int n = 0; n < iterations; n++) {
-		boxFold(z,dr);       // Reflect
-		sphereFold(z,dr);    // Sphere Inversion
+	for (int n = 0; n < iterations; n++) 
+    {
+		boxFold(z,dr);
+		sphereFold(z,dr);    
  		
-                z=scale*z + offset;  // Scale & Translate
-                dr = dr*abs(scale)+1.0;
+        z=scale*z + offset; 
+        dr = dr*abs(scale)+1.0;
 	}
 	float r = length(z);
 	return r/abs(dr);
@@ -114,26 +156,14 @@ float sierpinskiTetrahedron(vec3 z)
 float getDist(vec3 p)
 {
     vec4 s = vec4(0, 1, 6, 1);
-    //float sphereDist = length(p - s.xyz) - s.w;
-    //float planeDist = p.y;
+    float sphereDist = length(p - s.xyz) - s.w;
+    float planeDist = p.y;
     
-    float td = mandelBulb(p);
-    float dist = td;
-    //dist = min(dist, td);
+    //float td = mandelBulb(p);
+    //float dist = td;
+    float dist = min(sphereDist, planeDist);
     return dist;
 }
-
-
-vec3 R(vec2 uv, vec3 p, vec3 l, float z) {
-    vec3 f = normalize(l-p),
-        r = normalize(cross(vec3(0, 1, 0), f)),
-        u = cross(f,r),
-        c = p + f * z,
-        i = c + uv.x * r + uv.y * u,
-        d = normalize(i-p);
-    return d;
-}
-
 
 float rayMarch(vec3 ro, vec3 rd)
 {
@@ -184,24 +214,35 @@ float getLight(vec3 p)
 void main()
 {
 	vec2 uv = fragCoord;
-
-    vec2 m = iMouse.xy;
+    uv.x *= iResolution.x / iResolution.y;
 
     vec3 col = vec3(0);
     
-    vec3 ro = vec3(0, 0, -5.0);
+    vec3 ro = vec3(0, 2.0, -5.0);
 
-    ro.yz *= rotate(-m.y + 0.4);
-    ro.xz *= rotate(0.2 - m.x * PI);
+    vec2 mov = iKey * 0.1;
 
-    vec3 rd = R(uv, ro, vec3(0, 0, 0), 1.2);
+    ro = vec3(mov.x, 2.0, mov.y);
+
+    vec3 rd = normalize(vec3(uv.x, uv.y, 1));
+
+    rd *= rotateX(iLook.y);
+    rd *= rotateY(iLook.x);
   
     float dist = rayMarch(ro, rd);
-    
-    vec3 p = ro + rd * dist;
-    
-    float diffuse = getLight(p);
-    col = vec3(diffuse);
 
+    if (dist > MAX_DIST)
+    {
+        col = vec3(0.30, 0.36, 0.60) + (rd.y * 0.7);
+    }
+    else
+    {
+        vec3 p = ro + rd * dist;
+    
+        float diffuse = getLight(p);
+        col = vec3(diffuse);
+    }
+
+    col = pow(col, vec3(0.4545));
     FragColor = vec4(col, 1.0);
 }
