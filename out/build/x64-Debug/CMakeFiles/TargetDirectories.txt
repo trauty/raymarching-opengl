@@ -1,0 +1,3 @@
+C:/Users/traut/Desktop/Github_Repos/raymarching-opengl/out/build/x64-Debug/CMakeFiles/raymarching-opengl.dir
+C:/Users/traut/Desktop/Github_Repos/raymarching-opengl/out/build/x64-Debug/CMakeFiles/edit_cache.dir
+C:/Users/traut/Desktop/Github_Repos/raymarching-opengl/out/build/x64-Debug/CMakeFiles/rebuild_cache.dir

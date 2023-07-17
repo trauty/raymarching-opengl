@@ -1,0 +1,23 @@
+# ninja log v5
+38	194	7113404267456489	CMakeFiles/raymarching-opengl.dir/src/time.cpp.obj	bb9c85e9bf9b6815
+31	1143	7113404275901330	CMakeFiles/raymarching-opengl.dir/src/shader.cpp.obj	a68ed85189fbb3e3
+18	1228	7113404277792015	CMakeFiles/raymarching-opengl.dir/src/main.cpp.obj	a8c7dbb2a46075cb
+52	3824	7113404303746592	CMakeFiles/raymarching-opengl.dir/lib/imgui/imgui_draw.cpp.obj	e2f219fab8e2ec8c
+5573	5921	7113404324146649	raymarching-opengl.exe	3d41d91747af5bb1
+25	1780	7113404283314539	CMakeFiles/raymarching-opengl.dir/src/glad.c.obj	7a3360b1a4fbc5b2
+69	1740	7113404282934511	CMakeFiles/raymarching-opengl.dir/lib/imgui/imgui_impl_opengl3.cpp.obj	49ee5cad7ff95e79
+81	2837	7113404293889486	CMakeFiles/raymarching-opengl.dir/lib/imgui/imgui_tables.cpp.obj	24887d202eb87a0b
+60	2384	7113404289366920	CMakeFiles/raymarching-opengl.dir/lib/imgui/imgui_impl_glfw.cpp.obj	190895b14d098718
+91	4297	7113404308482449	CMakeFiles/raymarching-opengl.dir/lib/imgui/imgui_widgets.cpp.obj	7e15d6647b53bcef
+44	5572	7113404321201157	CMakeFiles/raymarching-opengl.dir/lib/imgui/imgui.cpp.obj	e6742522cc80ab54
+34	224	7113405717833890	CMakeFiles/raymarching-opengl.dir/src/time.cpp.obj	bb9c85e9bf9b6815
+29	885	7113405724418223	CMakeFiles/raymarching-opengl.dir/src/shader.cpp.obj	a68ed85189fbb3e3
+16	951	7113405725088376	CMakeFiles/raymarching-opengl.dir/src/main.cpp.obj	a8c7dbb2a46075cb
+65	1770	7113405733311757	CMakeFiles/raymarching-opengl.dir/lib/imgui/imgui_impl_opengl3.cpp.obj	49ee5cad7ff95e79
+23	1842	7113405734011807	CMakeFiles/raymarching-opengl.dir/src/glad.c.obj	7a3360b1a4fbc5b2
+56	2386	7113405739463955	CMakeFiles/raymarching-opengl.dir/lib/imgui/imgui_impl_glfw.cpp.obj	190895b14d098718
+74	2836	7113405743945000	CMakeFiles/raymarching-opengl.dir/lib/imgui/imgui_tables.cpp.obj	24887d202eb87a0b
+48	3905	7113405754654618	CMakeFiles/raymarching-opengl.dir/lib/imgui/imgui_draw.cpp.obj	e2f219fab8e2ec8c
+85	4323	7113405758821791	CMakeFiles/raymarching-opengl.dir/lib/imgui/imgui_widgets.cpp.obj	7e15d6647b53bcef
+40	5575	7113405771299203	CMakeFiles/raymarching-opengl.dir/lib/imgui/imgui.cpp.obj	e6742522cc80ab54
+5575	5921	7113405774234582	raymarching-opengl.exe	3d41d91747af5bb1
